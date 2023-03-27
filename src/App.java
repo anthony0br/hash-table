@@ -54,23 +54,34 @@ class HashTable implements Dictionary {
         return asciiValue % capacity;
     }
 
-    // Returns index of either the first matching pair or the next free pair
-    private int getIndex(String key) {
+    // Returns the index of a pair
+    // allowEmpty toggles whether to look for the next free space or find the exact key
+    // This is needed in the event pairs are deleted
+    private int getIndex(String key, boolean allowEmpty) {
         int hash = hashFunction(key);
+
+        // Potential optimisation: Use a different value for deleted and uninitialised, saving time checking if values don't exist
 
         // Search for the next free or matching bucket, starting at the hash (linear probing)
         int index = hash;
-        // Iterate the length of the array
+        // Iterate the length of the array in case there are collisions. Most of the time only 1 or 2 iterations will run.
         for (int i = 0; i < this.capacity; i++) {
-            // If free or matching, set found = false and return the index
-            if (hashArray[index][0] == null || hashArray[index][0].equals(key)) {
+            // If the key is null and we are looking for empty spaces
+            boolean emptyCondition = allowEmpty && hashArray[index][0] == null;
+            // If the key is not null and is equal to key we are looking for
+            boolean equalsCondition = hashArray[index][0] != null && hashArray[index][0].equals(key);
+            // Return index if either of the above conditions are met
+            //System.out.println(hashArray[index][0]);
+            //System.out.println(equalsCondition);
+            if (emptyCondition || equalsCondition) {
                 return index;
             }
-            // Skip to the next address
+            // Skip to the next bucket
             index += SKIP_FACTOR;
             // Loop over to the start if the end of the array is reached
             if (index >= this.capacity) {
-                index = this.capacity - 1 - index;
+                index = index - this.capacity;
+                //System.out.println(index);
             }
         }
         return -1;
@@ -83,22 +94,23 @@ class HashTable implements Dictionary {
         }
 
         // Get the next empty index, or the index of
-        int index = getIndex(key);
+        int index = getIndex(key, true);
         if (index == -1) {
             return;
         }
 
-        // Insert at that index
+        // Insert the key, value pair at the index
+        hashArray[index][0] = key;
         hashArray[index][1] = value;
         size = size + 1;
     }
 
     public String getValue(String key) {
-        int index = getIndex(key);
+        int index = getIndex(key, false);
 
-        // If index not found
+        // If index not found, exit
         if (index == -1) {
-            return "";
+            return null;
         }
 
         // Return the value
@@ -106,7 +118,16 @@ class HashTable implements Dictionary {
     }
 
     public void delete(String key) {
-        //size = size - 1
+        int index = getIndex(key, false);
+
+        // If index not found, exit
+        if (index == -1) {
+            return;
+        }
+
+        // Set the key to null, marking the space as deleted
+        hashArray[index][0] = null;
+        size = size - 1;
     }
 }
 
@@ -120,6 +141,9 @@ public class App {
         System.out.println(dictionary.getValue("key2"));
         dictionary.add("key1", "epic value number 2");
         dictionary.add("key2", "this is from key 2");
+        System.out.println(dictionary.getValue("key1"));
+        System.out.println(dictionary.getValue("key2"));
+        dictionary.delete("key1");
         System.out.println(dictionary.getValue("key1"));
         System.out.println(dictionary.getValue("key2"));
     }
