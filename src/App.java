@@ -11,7 +11,7 @@ interface Dictionary {
 // Note it is advisable to use prime number sizes
 // Could use a class Bucket to implement multiple data types in the hash table
 class HashTable implements Dictionary {
-    private String[] hashArray;
+    private String[][] hashArray;
     private int capacity;
     private int size;
     private int SKIP_FACTOR = 1;
@@ -46,7 +46,7 @@ class HashTable implements Dictionary {
     public HashTable(int capacity) {
         this.capacity = capacity;
         size = 0;
-        hashArray = new String[capacity];
+        hashArray = new String[capacity][2];
     }
 
     private int hashFunction(String key) {
@@ -54,7 +54,7 @@ class HashTable implements Dictionary {
         return asciiValue % capacity;
     }
 
-    // Returns either the matching index or the next free index
+    // Returns index of either the first matching pair or the next free pair
     private int getIndex(String key) {
         int hash = hashFunction(key);
 
@@ -63,7 +63,7 @@ class HashTable implements Dictionary {
         // Iterate the length of the array
         for (int i = 0; i < this.capacity; i++) {
             // If free or matching, set found = false and return the index
-            if (hashArray[index] == null || hashArray[index].equals(key)) {
+            if (hashArray[index][0] == null || hashArray[index][0].equals(key)) {
                 return index;
             }
             // Skip to the next address
@@ -89,7 +89,7 @@ class HashTable implements Dictionary {
         }
 
         // Insert at that index
-        hashArray[index] = value;
+        hashArray[index][1] = value;
         size = size + 1;
     }
 
@@ -102,7 +102,7 @@ class HashTable implements Dictionary {
         }
 
         // Return index
-        return hashArray[index];
+        return hashArray[index][1];
     }
 
     public void delete(String key) {
