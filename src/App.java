@@ -101,7 +101,7 @@ class HashTable implements Dictionary {
             return "";
         }
 
-        // Return index
+        // Return the value
         return hashArray[index][1];
     }
 
@@ -115,6 +115,11 @@ public class App {
         // Create a hash table of size 31 (prime)
         Dictionary dictionary = new HashTable(31);
         dictionary.add("key1", "value1");
+        dictionary.add("key1", "epic valye");
+        System.out.println(dictionary.getValue("key1"));
+        System.out.println(dictionary.getValue("key2"));
+        dictionary.add("key1", "epic value number 2");
+        dictionary.add("key2", "this is from key 2");
         System.out.println(dictionary.getValue("key1"));
         System.out.println(dictionary.getValue("key2"));
     }
