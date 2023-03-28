@@ -33,14 +33,12 @@ class HashTable implements Dictionary {
             setData(data);
         }
 
-        public void setData(T newData) {
-            data = newData;
-        }
-
         public T getData() {
             return data;
         }
     }
+
+    Note that a bucket should be immutable to prevent modification outside the class.
     */
 
     private static int convertASCII(String str) {
@@ -116,7 +114,7 @@ class HashTable implements Dictionary {
     public void add(String key, String value) {
         // Check if the table is full first
         if (size >= capacity) {
-            System.out.println("FULL");
+            System.out.println("Table full");
             return;
         }
 
@@ -129,6 +127,7 @@ class HashTable implements Dictionary {
         // Get the next empty index, or the index of
         int index = getIndex(key, true);
         if (index == -1) {
+            System.out.println("No index found");
             return;
         }
 
@@ -147,7 +146,8 @@ class HashTable implements Dictionary {
             return null;
         }
 
-        // Return copy of the value
+        // Return the value. As this is a String it is immutable and can be returned safely.
+        // If mutable buckets are used, it would be necessary to copy the object.
         return hashArray[index][1];
     }
 
@@ -159,7 +159,7 @@ class HashTable implements Dictionary {
             return;
         }
 
-        // Set the key to null, marking the space as deleted
+        // Set the key to the tombstone key, marking the space as deleted
         hashArray[index][0] = TOMBSTONE_KEY;
         size = size - 1;
     }
